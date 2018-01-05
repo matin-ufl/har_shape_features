@@ -37,3 +37,7 @@ tags
 vendor.tags
 tmtagsHistory
 .bundle
+
+# My drafts #
+#############
+*DONOTCOMMIT*
