@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 class UCI_Handler(object):
-    def __readUCIFiles(self, data_folder: str, dataset_type: str):
+    def __readUCIFiles(self, data_folder: str, dataset_type: str, type_sensor: str):
         """
         Read downloaded and extracted files from UCI repository and returns five pandas.DataFrames.
         - sensor_x: one vector containing x-axis data.
@@ -27,11 +27,12 @@ class UCI_Handler(object):
 
         :param data_folder: address of extracted folder. For example, "~/Desktop/UCI HAR Dataset/"
         :param dataset_type: either "train" or "test".
+        :param type_sensor: one of the following: 1) "total_acc", 2) "body_acc", 3) "body_gyro".
         :return: five pandas.DataFrame; sensor_x, sensor_y, sensor_z, subjects, activities. All of them have only one column.
         """
-        sensor_x = pd.read_csv(r"{}Inertial Signals/total_acc_x_{}.txt".format(data_folder, dataset_type), header=None)
-        sensor_y = pd.read_csv(r"{}Inertial Signals/total_acc_y_{}.txt".format(data_folder, dataset_type), header=None)
-        sensor_z = pd.read_csv(r"{}Inertial Signals/total_acc_z_{}.txt".format(data_folder, dataset_type), header=None)
+        sensor_x = pd.read_csv(r"{}Inertial Signals/{}_x_{}.txt".format(data_folder, type_sensor, dataset_type), header=None)
+        sensor_y = pd.read_csv(r"{}Inertial Signals/{}_y_{}.txt".format(data_folder, type_sensor, dataset_type), header=None)
+        sensor_z = pd.read_csv(r"{}Inertial Signals/{}_z_{}.txt".format(data_folder, type_sensor, dataset_type), header=None)
         subjects = pd.read_csv(r"{}subject_{}.txt".format(data_folder, dataset_type), header=None)
         activities = pd.read_csv(r"{}y_{}.txt".format(data_folder, dataset_type), header=None)
 
@@ -53,7 +54,7 @@ class UCI_Handler(object):
                 vec.append(float(t))
         return vec
 
-    def saveUCIFilesAsCSV(self, data_folder: str, dataset_type: str):
+    def saveUCIFilesAsCSV(self, data_folder: str, dataset_type: str, type_sensor: str):
         """
         Reads raw sensor data (Inertial Signals/total_acc_?_<dataset_type>.txt) and generates csv files in the following format.
                     Subject  |  Activity  |  Axis_X  |  Axis_Y  |  Axis_Z
@@ -67,6 +68,7 @@ class UCI_Handler(object):
 
         :param data_folder: address of extracted folder. For example, "~/Desktop/UCI HAR Dataset/"
         :param dataset_type: either "train" or "test".
+        :param type_sensor: one of the following: 1) "total_acc", 2) "body_acc", 3) "body_gyro".
         """
         activity_dict = {1: "WALKING",
                          2: "WALKING_UPSTAIRS",
@@ -75,7 +77,7 @@ class UCI_Handler(object):
                          5: "STANDING",
                          6: "LAYING"}
         # Reading raw sensor data and additional information from UCI files.
-        sensor_x, sensor_y, sensor_z, subjects, activities = self.__readUCIFiles(data_folder, dataset_type)
+        sensor_x, sensor_y, sensor_z, subjects, activities = self.__readUCIFiles(data_folder, dataset_type, type_sensor)
         # preparing the output DataFrame
         final_df = None
         # Since rows have 50% overlapping parts, we skip every other row and append the rest.
@@ -95,5 +97,5 @@ class UCI_Handler(object):
                 final_df = final_df.append(currDF, ignore_index=True)
 
         # Saving the final DataFrame as a csv file.
-        final_df.to_csv(r"{}{}_data.csv".format(data_folder, dataset_type), index=False)
+        final_df.to_csv(r"{}{}_{}_data.csv".format(data_folder, dataset_type, type_sensor), index=False)
 

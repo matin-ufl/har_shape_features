@@ -30,23 +30,29 @@ from data_cleaning.uci_handler import UCI_Handler
 if __name__ == "__main__":
     uh = UCI_Handler()
 
-    # Function requires two arguments:
+    # Function requires three arguments:
     # 1. The folder where you have extracted UCI HAR Dataset files.
     # 2. Which folder (either "train" or "test") to look into for conversion.
+    # 3. Which sensor file to read.
+    #    i. "total_acc"
+    #   ii. "body_acc"
+    #  iii. "body_gyro"
     
     # Write training data as csv
     dataset_type = "train"
+    type_sensor = "body_acc"
     data_folder = r"/Users/matin/Desktop/UCI HAR Dataset/{}/".format(dataset_type)
 
-    # Saves data into "Users/matin/Desktop/UCI HAR Dataset/train/train_data.csv"
-    uh.saveUCIFilesAsCSV(data_folder, dataset_type)
+    # Saves data into "Users/matin/Desktop/UCI HAR Dataset/train/train_body_acc_data.csv"
+    uh.saveUCIFilesAsCSV(data_folder, dataset_type, type_sensor)
 
     # Write test data as csv
     dataset_type = "test"
+    type_sensor = "body_acc"
     data_folder = r"/Users/matin/Desktop/UCI HAR Dataset/{}/".format(dataset_type)
     
-    # Saves data into "Users/matin/Desktop/UCI HAR Dataset/test/test_data.csv"
-    uh.saveUCIFilesAsCSV(data_folder, dataset_type)
+    # Saves data into "Users/matin/Desktop/UCI HAR Dataset/test/test_body_acc_data.csv"
+    uh.saveUCIFilesAsCSV(data_folder, dataset_type, type_sensor)
 ```
 
 
