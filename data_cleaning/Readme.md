@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
 
 
-##Downsampling & Dividing UCI Data into Separate Files 
+## Downsampling & Dividing UCI Data into Separate Files
 
 Since human movement frequencies are within [0.6 and 2.5] Hz range, we can downsample the data to 10 Hz to reduce the data size and get rid of unwanted information. Moreover, since in our proposed model we are learning recurring patterns for each subject, we should save each subject data separately for faster processing. The implemented function `UCI_Handler.downsampleAndSeparateSubjectData()` does both!
 
