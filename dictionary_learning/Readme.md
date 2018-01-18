@@ -1,4 +1,4 @@
-#Dictionary Learning
+# Dictionary Learning
 
 ```
 Author: Matin Kheirkhahan
