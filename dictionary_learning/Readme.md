@@ -7,10 +7,8 @@ Author: Matin Kheirkhahan
 
 This package provides the following functionalities:
 
-1. Learning **dictionary draft** (initial _atom_ pool).
-   * Learning patterns of activity which _seem_ to be repeating in the data.
-2. Learning **final dictionary**.
-   * Excluding redundant _atoms_ from selected activity patterns and generating the final dictionary.
+1. Learning **dictionary draft** (initial _atom_ pool): patterns of activity which _seem_ to be repeating in the data.
+2. Learning **final dictionary**: excluding redundant _atoms_ from selected activity patterns and generating the final dictionary.
 
 
 
@@ -21,6 +19,17 @@ This is the first step to find repeatitive patterns in a specific type of activi
 * For each window _w_, we keep the most similar window and their differences.
 * We keep _non-redundant_ window with minimum _difference_ and keep them in the initial pool (**dictionary draft**).
 * Since this step is done for each patient and activity separately, we try to find groups of similar acceleration patterns (_atoms_) once again in the end to find the **final dictionary** containing unique _atoms_.
+
+
+---
+
+**Note:** Accelerometer data are provided in three-axial form; i.e., _X_, _Y_, & _Z_ values. Vector Magnitude (_VM_) is calculated by `sqrt(X^2 + Y^2 + Z^2)`.  This package provides dictionary learning for both cases:
+
+* Triaxial: atoms are kept in their original 3-axis form. Similarities are defined as the average of similarity metric over three axes. (3D dictionary)
+* Vector Magnitude: atoms are found in 1-column vector form. Similarities are calculated using _VM_ values only. (1D dictionary)
+
+---
+
 
 
 
@@ -36,10 +45,14 @@ Now, that we realized how _similarity_ (or _difference_) is measured for each ti
 
 ![Learning dictionary draft](images/fig02_learn_draft_dictionary_supervised.png)
 
-We select _atoms_ based on their _similarity_ measures. We start with the _atom_ with maximum similarity and add it to our pool. The next _atom_ has 
+We select _atoms_ based on their _similarity_ measures. We start with the _atom_ with maximum similarity and add it to our pool. The next _atom_ has (1) highest similarity and (2) no overlap with previously selected _atoms_ (to achieve minimum redundancy).
 
-1. highest similarity
-2. no overlap with previously selected _atoms_ (to achieve minimum redundancy)
+There are two functions to learn the **draft dictionary**:
+
+* `learnDraftDictionary_VM` for 1D dictionary atoms using _VM_.
+* `learnDraftDictionary_triAxial` for 3D dictionary atoms using _X_, _Y_, & _Z_ values.
+
+Below, there is an example for learning draft dictionary using _VM_ values.
 
 ```python
 from dictionary_learning.supervised_learner import SupervisedLearner
@@ -66,17 +79,8 @@ def learnDictionaryDraft(activity: str, atom_len: int, training_folder: str, out
         ppt_df = pd.read_csv("{}{}".format(training_folder, filename))
         activity_df = ppt_df.loc[ppt_df.activity == activity, :]
         
-        # Learning draft dictionary has the following input arguments:
-        # 1. activity_df: a DataFrame (m x 6); where m is the number of data points and columns are
-        #                         - subject
-        #                         - activity
-        #                         - X, Y, Z, VM
-        # 2. draft_dictionary_df: previously found _candidate_ atoms that we append the new _candidates_ to this DataFrame.
-        # 3. atom_length: atom durations (in seconds)
-        # 4. prc: determines the percentile to keep. (top acceleration patterns with minimum dissimilarity with future patterns)
-        # 5. dist_func: a distance function which gets two vectors and returns a distance. (see Utils class for the implemented distance functions)
-        # 6. samplingRate: number of data points in a second.
-        dictionary_df = sl.learnAndAppendDraftDictionary(activity_df,
+        # Learning 1D draft dictionary.
+        dictionary_df = sl.learnDraftDictionary_VM(activity_df,
                                                          draft_dictionary_df,
                                                          atom_length=atom_len,
                                                          prc=20,
@@ -94,6 +98,8 @@ if __name__ == "__main__":
     out_folder = r"/Users/matin/Desktop/UCI HAR Dataset/training/draft_dictionaries/"
     learnDictionaryDraft(activity, atomLenSec, training_folder, out_folder)
 ```
+
+If, triaxial dictionary is preferred, `learnDraftDicionary_triAxia` should be used instead.
 
 The learned **dictionary draft** requires one additional pass to remove identical or similar _atoms_ and generate the **final dictionary** for an activity.
 

@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import time
 
+
 def learnDictionaryDraft():
     tic = time.time()
 
@@ -31,38 +32,38 @@ def learnDictionaryDraft():
 
         # Standing
         activity_df = ppt_df.loc[ppt_df.activity == "STANDING", :]
-        standing_draft_dictionary_df = sl.learnAndAppendDraftDictionary(activity_df, standing_draft_dictionary_df,
-                                                                        atom_length=3, prc=20, dist_func=Utils.dtw,
-                                                                        samplingRate=10)
+        standing_draft_dictionary_df = sl.learnDraftDictionary_VM(activity_df, standing_draft_dictionary_df,
+                                                                  atom_length_sec=3, prc=20, dist_func=Utils.dtw,
+                                                                  samplingRate=10)
 
         # Sitting
         activity_df = ppt_df.loc[ppt_df.activity == "SITTING", :]
-        sitting_draft_dictionary_df = sl.learnAndAppendDraftDictionary(activity_df, sitting_draft_dictionary_df,
-                                                                       atom_length=3, prc=20, dist_func=Utils.dtw,
-                                                                       samplingRate=10)
+        sitting_draft_dictionary_df = sl.learnDraftDictionary_VM(activity_df, sitting_draft_dictionary_df,
+                                                                 atom_length_sec=3, prc=20, dist_func=Utils.dtw,
+                                                                 samplingRate=10)
 
         # Laying
         activity_df = ppt_df.loc[ppt_df.activity == "LAYING", :]
-        laying_draft_dictionary_df = sl.learnAndAppendDraftDictionary(activity_df, laying_draft_dictionary_df,
-                                                                      atom_length=3, prc=20, dist_func=Utils.dtw,
-                                                                      samplingRate=10)
+        laying_draft_dictionary_df = sl.learnDraftDictionary_VM(activity_df, laying_draft_dictionary_df,
+                                                                atom_length_sec=3, prc=20, dist_func=Utils.dtw,
+                                                                samplingRate=10)
 
         # Walking
         activity_df = ppt_df.loc[ppt_df.activity == "WALKING", :]
-        walking_draft_dictionary_df = sl.learnAndAppendDraftDictionary(activity_df, walking_draft_dictionary_df,
-                                                                       atom_length=3, prc=20, dist_func=Utils.dtw,
-                                                                       samplingRate=10)
+        walking_draft_dictionary_df = sl.learnDraftDictionary_VM(activity_df, walking_draft_dictionary_df,
+                                                                 atom_length_sec=3, prc=20, dist_func=Utils.dtw,
+                                                                 samplingRate=10)
 
         # Walking downstairs
         activity_df = ppt_df.loc[ppt_df.activity == "WALKING_DOWNSTAIRS", :]
-        walkingDown_draft_dictionary_df = sl.learnAndAppendDraftDictionary(activity_df, walkingDown_draft_dictionary_df,
-                                                                           atom_length=3, prc=20, dist_func=Utils.dtw,
-                                                                           samplingRate=10)
+        walkingDown_draft_dictionary_df = sl.learnDraftDictionary_VM(activity_df, walkingDown_draft_dictionary_df,
+                                                                     atom_length_sec=3, prc=20, dist_func=Utils.dtw,
+                                                                     samplingRate=10)
         # Walking upstairs
         activity_df = ppt_df.loc[ppt_df.activity == "WALKING_UPSTAIRS", :]
-        walkingUp_draft_dictionary_df = sl.learnAndAppendDraftDictionary(activity_df, walkingUp_draft_dictionary_df,
-                                                                         atom_length=3, prc=20, dist_func=Utils.dtw,
-                                                                         samplingRate=10)
+        walkingUp_draft_dictionary_df = sl.learnDraftDictionary_VM(activity_df, walkingUp_draft_dictionary_df,
+                                                                   atom_length_sec=3, prc=20, dist_func=Utils.dtw,
+                                                                   samplingRate=10)
 
     standing_draft_dictionary_df.to_csv("{}supervised_{}_draft_dictionary.csv".format(out_folder, "standing"),
                                         index=False)
@@ -81,6 +82,7 @@ def learnDictionaryDraft():
 
     # Process took 24703.4936 seconds
 
+
 def visualizeDendrogram(draftDictionary_filename):
     tic = time.time()
     sl = SupervisedLearner()
@@ -92,6 +94,7 @@ def visualizeDendrogram(draftDictionary_filename):
     sl.atomVisualization_dendrogram(dictionary_df, dist_func=Utils.dtw)
     toc = time.time()
     print("elapsed time: {:.2f} seconds".format(toc - tic))
+
 
 def learnFinalDictionary(draft_folder_address: str, cutoffs: dict, outfolder: str):
     # found cutoffs by visualizing the dendrograms (visualizeDendrogram) for each case and finding the desired number of clusters.
@@ -109,6 +112,7 @@ def learnFinalDictionary(draft_folder_address: str, cutoffs: dict, outfolder: st
         final_dictionary_df.to_csv("{}supervised_{}_final_dictionary.csv".format(outfolder, k), index=False)
     toc = time.time()
     print("Final dictionary learned for all cases. (elapsed time: {:.2f} seconds)".format(toc - tic))
+
 
 def visualizeAtomPoints(draft_dictionary_filename: str, cutoff: float):
     # found cutoffs by visualizing the dendrograms (visualizeDendrogram) for each case and finding the desired number of clusters.
@@ -134,6 +138,7 @@ def visualizeAtomPoints(draft_dictionary_filename: str, cutoff: float):
     toc = time.time()
     print("All three figures plotted. (elapsed time: {:.2f} seconds)".format(toc - tic))
 
+
 def visualizeAtomWaveforms(dictionary_folder, output_folder):
     sl = SupervisedLearner()
     activities = ['laying', 'sitting', 'standing', 'walking', 'walkingdown', 'walkingup']
@@ -151,13 +156,85 @@ def visualizeAtomWaveforms(dictionary_folder, output_folder):
 
     sl.visualizeDictionaryWaveforms(dictionary_df, output_folder)
 
+
+def learnDictionaryDraft_triaxial():
+    tic = time.time()
+    sl = SupervisedLearner()
+    rawAccelerometerDataFolder = r"/Users/matin/Dropbox/Work-Research/Current Directory/Shape Features/Data/UCI dataset/UCI HAR Dataset/downsampled/Body/Training/"
+    atom_length_sec = 3
+    draft_folder_address = r"/Users/matin/Dropbox/Work-Research/Current Directory/Shape Features/Data/UCI dataset/UCI HAR Dataset/downsampled/Body/Supervised/Triaxial/{}/draft_dictionaries/".format(atom_length_sec)
+
+    # ['STANDING', 'SITTING', 'LAYING', 'WALKING', 'WALKING_DOWNSTAIRS', 'WALKING_UPSTAIRS']
+    standing_draft_dictionary_df = None
+    sitting_draft_dictionary_df = None
+    laying_draft_dictionary_df = None
+    walking_draft_dictionary_df = None
+    walkingDown_draft_dictionary_df = None
+    walkingUp_draft_dictionary_df = None
+
+    filenames = os.listdir(rawAccelerometerDataFolder)
+    for filename in filenames:
+        print("\n\n---------- {} ----------".format(filename))
+        ppt_df = pd.read_csv("{}{}".format(rawAccelerometerDataFolder, filename))
+
+        # Standing
+        activity_df = ppt_df.loc[ppt_df.activity == "STANDING", :]
+        standing_draft_dictionary_df = sl.learnDraftDictionary_triAxial(activity_df, standing_draft_dictionary_df,
+                                                                  atom_length_sec=atom_length_sec, prc=20, dist_func=Utils.dtw,
+                                                                  samplingRate=10)
+
+        # Sitting
+        activity_df = ppt_df.loc[ppt_df.activity == "SITTING", :]
+        sitting_draft_dictionary_df = sl.learnDraftDictionary_triAxial(activity_df, sitting_draft_dictionary_df,
+                                                                 atom_length_sec=atom_length_sec, prc=20, dist_func=Utils.dtw,
+                                                                 samplingRate=10)
+
+        # Laying
+        activity_df = ppt_df.loc[ppt_df.activity == "LAYING", :]
+        laying_draft_dictionary_df = sl.learnDraftDictionary_triAxial(activity_df, laying_draft_dictionary_df,
+                                                                atom_length_sec=atom_length_sec, prc=20, dist_func=Utils.dtw,
+                                                                samplingRate=10)
+
+        # Walking
+        activity_df = ppt_df.loc[ppt_df.activity == "WALKING", :]
+        walking_draft_dictionary_df = sl.learnDraftDictionary_triAxial(activity_df, walking_draft_dictionary_df,
+                                                                 atom_length_sec=atom_length_sec, prc=20, dist_func=Utils.dtw,
+                                                                 samplingRate=10)
+
+        # Walking downstairs
+        activity_df = ppt_df.loc[ppt_df.activity == "WALKING_DOWNSTAIRS", :]
+        walkingDown_draft_dictionary_df = sl.learnDraftDictionary_triAxial(activity_df, walkingDown_draft_dictionary_df,
+                                                                     atom_length_sec=atom_length_sec, prc=20, dist_func=Utils.dtw,
+                                                                     samplingRate=10)
+        # Walking upstairs
+        activity_df = ppt_df.loc[ppt_df.activity == "WALKING_UPSTAIRS", :]
+        walkingUp_draft_dictionary_df = sl.learnDraftDictionary_triAxial(activity_df, walkingUp_draft_dictionary_df,
+                                                                   atom_length_sec=atom_length_sec, prc=20, dist_func=Utils.dtw,
+                                                                   samplingRate=10)
+
+    standing_draft_dictionary_df.to_csv("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "STANDING"),
+                                        index=False)
+    sitting_draft_dictionary_df.to_csv("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "SITTING"),
+                                       index=False)
+    laying_draft_dictionary_df.to_csv("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "LAYING"), index=False)
+    walking_draft_dictionary_df.to_csv("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "WALKING"),
+                                       index=False)
+    walkingDown_draft_dictionary_df.to_csv("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "WALKING_DOWNSTAIRS"),
+                                           index=False)
+    walkingUp_draft_dictionary_df.to_csv("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "WALKING_UPSTAIRS"),
+                                         index=False)
+
+    toc = time.time()
+    print("Learning triaxial dictionary for atoms of {} seconds is over. (elapsed time: {:.4f} seconds)".format(atom_length_sec, toc - tic))
+
+
 if __name__ == "__main__":
     # Learning draft dictionary
-    #learnDictionaryDraft()
+    # learnDictionaryDraft()
 
     # Checking dendrogram and finding the right number of clusters from draft dictionaries.
-    #draftDictionary_filename = r"/Users/matin/Dropbox/Work-Research/Current Directory/Shape Features/Data/UCI dataset/UCI HAR Dataset/downsampled/supervised/supervised_walking_draft_dictionary.csv"
-    #visualizeDendrogram(draftDictionary_filename)
+    # draftDictionary_filename = r"/Users/matin/Dropbox/Work-Research/Current Directory/Shape Features/Data/UCI dataset/UCI HAR Dataset/downsampled/supervised/supervised_walking_draft_dictionary.csv"
+    # visualizeDendrogram(draftDictionary_filename)
 
     # Learning final dictionaries after carefully checking the dendrograms
     draft_folder_address = r"/Users/matin/Dropbox/Work-Research/Current Directory/Shape Features/Data/UCI dataset/UCI HAR Dataset/downsampled/supervised/"
@@ -168,8 +245,10 @@ if __name__ == "__main__":
                "walking": 0.042,
                "walkingdown": 0.072,
                "walkingup": 0.053}
-    #learnFinalDictionary(draft_folder_address, cutoffs, outfolder=final_folder_address)
+    # learnFinalDictionary(draft_folder_address, cutoffs, outfolder=final_folder_address)
 
-    #visualizeAtomPoints("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "walking"), cutoffs["walking"])
+    # visualizeAtomPoints("{}supervised_{}_draft_dictionary.csv".format(draft_folder_address, "walking"), cutoffs["walking"])
 
-    visualizeAtomWaveforms(final_folder_address, "/Users/matin/Desktop/dictionary.pdf")
+    # visualizeAtomWaveforms(final_folder_address, "/Users/matin/Desktop/dictionary.pdf")
+
+    learnDictionaryDraft_triaxial()

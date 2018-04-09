@@ -7,6 +7,7 @@ Created on Thu Jan 11 15:42:40 2018
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import cdist
+import time
 
 class Utils(object):
     """
@@ -80,3 +81,26 @@ class Utils(object):
     def dtw(x, y, dist='euclidean'):
         d, _, _, _ = Utils.__fastdtw(x, y, dist=dist)
         return d
+
+    @staticmethod
+    def timedDTW(X, i, j, tic=None, dist_func=None):
+        """
+        X is a n*m matrix and we are interested in finding the distance between each _row_.
+        This function returns the distance between i^{th} and j^{th} rows in X matrix.
+        It uses Utils.dtw function by default for calculating the distances.
+
+        :param X:
+        :param i:
+        :param j:
+        :param dist_func:
+        :param tic: if provided, the function logs the total amount of time elapsed. Otherwise (default), logs the elapsed time to calculate the distance between the two current rows.
+        :return:
+        """
+        if tic is None:
+            tic = time.time()
+        if dist_func is None:
+            dist_func = Utils.dtw
+        diss = dist_func(X[i], X[j])
+        toc = time.time()
+        print("\r{} out of {} - {:.2f} seconds.".format(i, len(X), toc - tic), end="")
+        return np.round(diss, decimals=4)
